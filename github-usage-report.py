@@ -2,6 +2,10 @@ import csv
 
 import matplotlib.pyplot as plt
 
+def make_float(s):
+    s = s.strip()
+    return float(s) if s else 0.0
+
 class LineItem:
     def __init__(self,
                  Date,
@@ -19,10 +23,10 @@ class LineItem:
         self.Date = Date
         self.Product = Product
         self.SKU = SKU
-        self.Quantity = float(Quantity)
+        self.Quantity = make_float(Quantity)
         self.UnitType = UnitType
-        self.PricePerUnit = float(PricePerUnit)
-        self.Multiplier = float(Multiplier)
+        self.PricePerUnit = make_float(PricePerUnit)
+        self.Multiplier = make_float(Multiplier)
         self.Owner = Owner
         self.RepositorySlug = RepositorySlug
         self.Username = Username
@@ -62,7 +66,7 @@ with open('example-report.csv') as f:
     total_cost = 0
     total_count = 0
     for item in line_items:
-        if item.Product == "Actions":
+        if item.Product == "Actions" and 'di-devplatform' in item.RepositorySlug:
             if item.workflowPath() in workflow_costs.keys():
                 workflow_costs[item.workflowPath()] = workflow_costs[item.workflowPath()] + item.cost()
             else:
@@ -90,9 +94,10 @@ with open('example-report.csv') as f:
         print(wf,count)
     print()
 
+    workflow_costs_sorted_by_name = dict(sorted(workflow_costs.items(), reverse=True))
 
-    labels = list(workflow_costs.keys())
-    values = list(workflow_costs.values())
+    labels = list(workflow_costs_sorted_by_name.keys())
+    values = list(workflow_costs_sorted_by_name.values())
 
     plt.pie(values, labels=labels)
     plt.show()
